@@ -14,6 +14,7 @@ export default defineConfig({
     'commands/config/get': 'src/commands/config/get.ts',
     'commands/spend': 'src/commands/spend.ts',
     'commands/update': 'src/commands/update.ts',
+    'commands/uninstall': 'src/commands/uninstall.ts',
     'ui/setup': 'src/ui/setup.tsx',
   },
   format: ['esm'],

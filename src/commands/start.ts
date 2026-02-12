@@ -46,8 +46,8 @@ export default class Start extends Command {
         configStore.set('agentName', result.agentName);
         config.apiKey = result.apiKey;
         config.agentId = result.agentId;
-      } catch {
-        this.error('Setup cancelled.');
+      } catch (err) {
+        this.error((err as Error).message || 'Setup cancelled.');
       }
     }
 

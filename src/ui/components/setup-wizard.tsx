@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { Box, Text } from 'ink';
 import { TextInput, Spinner, StatusMessage } from '@inkjs/ui';
 
-type Step = 'api-key' | 'registering' | 'done' | 'error';
+type Step = 'api-key' | 'registering' | 'done';
 
 interface Props {
   onComplete: (result: { agentId: string; apiKey: string; agentName: string }) => void;
+  onError: (message: string) => void;
 }
 
 declare const AGENT_VERSION: string;
 
-export function SetupWizard({ onComplete }: Props) {
+export function SetupWizard({ onComplete, onError }: Props) {
   const [step, setStep] = useState<Step>('api-key');
   const [error, setError] = useState('');
 
@@ -45,8 +46,12 @@ export function SetupWizard({ onComplete }: Props) {
         agentName: json.data.name,
       });
     } catch (err) {
-      setError((err as Error).message);
-      setStep('error');
+      const msg = (err as Error).message;
+      if (msg === 'fetch failed' || msg.includes('ECONNREFUSED') || msg.includes('ENOTFOUND')) {
+        onError('Could not connect to Stamn. Is the server running?');
+      } else {
+        onError(msg);
+      }
     }
   };
 
@@ -92,15 +97,6 @@ export function SetupWizard({ onComplete }: Props) {
         <StatusMessage variant="success">
           Agent registered. Starting...
         </StatusMessage>
-      )}
-
-      {step === 'error' && (
-        <Box flexDirection="column">
-          <StatusMessage variant="error">
-            Registration failed: {error}
-          </StatusMessage>
-          <Text dimColor>Check your API key and try again.</Text>
-        </Box>
       )}
 
       {step === 'api-key' && (

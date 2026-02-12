@@ -15,6 +15,10 @@ export function runSetup(): Promise<SetupResult> {
           unmount();
           resolve(result);
         }}
+        onError={(message) => {
+          unmount();
+          reject(new Error(message));
+        }}
       />,
     );
 
