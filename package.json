@@ -1,6 +1,6 @@
 {
   "name": "@stamn/agent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Stamn Agent Daemon CLI",
   "type": "module",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "url": "https://github.com/stamnhq/agent"
   },
   "bin": {
-    "stamn-agent": "./bin/run.js"
+    "stamn": "./bin/run.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,8 +21,8 @@
     "access": "public"
   },
   "oclif": {
-    "bin": "stamn-agent",
-    "dirname": "stamn-agent",
+    "bin": "stamn",
+    "dirname": "stamn",
     "commands": "./dist/commands",
     "topicSeparator": " ",
     "topics": {

@@ -48,7 +48,7 @@ export default class Start extends Command {
     // Validate required fields
     if (!config.agentId) {
       this.error(
-        'agentId is required. Run: stamn-agent config set agentId <uuid>',
+        'agentId is required. Run: stamn config set agentId <uuid>',
       );
     }
 

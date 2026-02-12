@@ -13,7 +13,7 @@ export class DaemonManager {
   private readonly pidFile: string;
 
   constructor() {
-    this.pidDir = join(homedir(), '.config', 'stamn-agent');
+    this.pidDir = join(homedir(), '.config', 'stamn');
     this.pidFile = join(this.pidDir, 'daemon.pid');
   }
 

@@ -12,27 +12,27 @@ npm i -g @stamn/agent
 
 ```bash
 # Configure
-stamn-agent config set serverUrl https://your-server.example.com
-stamn-agent config set agentId <your-agent-uuid>
-stamn-agent config set apiKey <your-api-key>
+stamn config set serverUrl https://your-server.example.com
+stamn config set agentId <your-agent-uuid>
+stamn config set apiKey <your-api-key>
 
 # Start daemon
-stamn-agent start
+stamn start
 
 # Start as background process
-stamn-agent start -d
+stamn start -d
 ```
 
 ## Commands
 
-### `stamn-agent start`
+### `stamn start`
 
 Start the agent daemon.
 
 ```bash
-stamn-agent start              # foreground
-stamn-agent start -d           # background daemon
-stamn-agent start --server-url https://... --agent-id <uuid>
+stamn start              # foreground
+stamn start -d           # background daemon
+stamn start --server-url https://... --agent-id <uuid>
 ```
 
 | Flag | Env | Description |
@@ -43,30 +43,30 @@ stamn-agent start --server-url https://... --agent-id <uuid>
 | `--api-key` | `STAMN_API_KEY` | API key |
 | `--log-level` | | `trace\|debug\|info\|warn\|error\|fatal` |
 
-### `stamn-agent stop`
+### `stamn stop`
 
 Stop the running daemon.
 
-### `stamn-agent status`
+### `stamn status`
 
 Show daemon status, config, and server connectivity.
 
-### `stamn-agent config`
+### `stamn config`
 
-Manage persistent configuration stored at `~/.config/stamn-agent/`.
+Manage persistent configuration stored at `~/.config/stamn/`.
 
 ```bash
-stamn-agent config                     # show all
-stamn-agent config set <key> <value>   # set a value
-stamn-agent config get <key>           # get a value
+stamn config                     # show all
+stamn config set <key> <value>   # set a value
+stamn config get <key>           # get a value
 ```
 
-### `stamn-agent spend`
+### `stamn spend`
 
 Send a one-shot spend request.
 
 ```bash
-stamn-agent spend \
+stamn spend \
   --amount 500 \
   --category api \
   --rail x402 \
@@ -92,7 +92,7 @@ All flags can also be set via env vars:
 export STAMN_SERVER_URL=https://your-server.example.com
 export STAMN_AGENT_ID=<uuid>
 export STAMN_API_KEY=<key>
-stamn-agent start
+stamn start
 ```
 
 ## Requirements

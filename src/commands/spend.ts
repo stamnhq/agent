@@ -50,7 +50,7 @@ export default class Spend extends Command {
     if (flags['api-key']) config.apiKey = flags['api-key'];
 
     if (!config.agentId) {
-      this.error('agentId is required. Run: stamn-agent config set agentId <uuid>');
+      this.error('agentId is required. Run: stamn config set agentId <uuid>');
     }
 
     const logger = createLogger({ logLevel: 'info' });

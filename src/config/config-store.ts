@@ -6,7 +6,7 @@ export class ConfigStore {
 
   constructor() {
     this.store = new Conf<AgentConfig>({
-      projectName: 'stamn-agent',
+      projectName: 'stamn',
       defaults: CONFIG_DEFAULTS,
     });
   }
