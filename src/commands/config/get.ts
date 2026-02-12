@@ -4,6 +4,20 @@ import { configSchema } from '../../config/config-schema.js';
 
 const VALID_KEYS = Object.keys(configSchema.shape);
 
+const KEBAB_TO_CAMEL: Record<string, string> = {
+  'server-url': 'serverUrl',
+  'api-key': 'apiKey',
+  'agent-id': 'agentId',
+  'log-level': 'logLevel',
+  'heartbeat-interval-ms': 'heartbeatIntervalMs',
+  'ws-reconnect-base-ms': 'wsReconnectBaseMs',
+  'ws-reconnect-max-ms': 'wsReconnectMaxMs',
+};
+
+function resolveKey(input: string): string {
+  return KEBAB_TO_CAMEL[input] ?? input;
+}
+
 export default class ConfigGet extends Command {
   static override description = 'Get a configuration value';
 
@@ -13,15 +27,15 @@ export default class ConfigGet extends Command {
 
   async run(): Promise<void> {
     const { args } = await this.parse(ConfigGet);
+    const key = resolveKey(args.key);
 
-    if (!VALID_KEYS.includes(args.key)) {
-      this.error(
-        `Invalid key "${args.key}". Valid keys: ${VALID_KEYS.join(', ')}`,
-      );
+    if (!VALID_KEYS.includes(key)) {
+      const display = Object.keys(KEBAB_TO_CAMEL).join(', ');
+      this.error(`Invalid key "${args.key}". Valid keys: ${display}`);
     }
 
     const store = new ConfigStore();
-    const value = store.get(args.key as keyof typeof configSchema.shape);
+    const value = store.get(key as keyof typeof configSchema.shape);
     this.log(value != null ? String(value) : '(not set)');
   }
 }

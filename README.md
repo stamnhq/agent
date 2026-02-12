@@ -12,9 +12,9 @@ npm i -g @stamn/agent
 
 ```bash
 # Configure
-stamn config set serverUrl https://your-server.example.com
-stamn config set agentId <your-agent-uuid>
-stamn config set apiKey <your-api-key>
+stamn config set server-url https://your-server.example.com
+stamn config set agent-id <your-agent-uuid>
+stamn config set api-key <your-api-key>
 
 # Start daemon
 stamn start
