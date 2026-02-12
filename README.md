@@ -5,6 +5,12 @@ Daemon CLI for Stamn agents. Connects to the Stamn server via WebSocket, authent
 ## Install
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/stamnhq/agent/refs/heads/main/install.sh | bash
+```
+
+Or manually:
+
+```bash
 npm i -g @stamn/agent
 ```
 
