@@ -1,6 +1,6 @@
 {
   "name": "@stamn/agent",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Stamn Agent Daemon CLI",
   "type": "module",
   "license": "MIT",
@@ -40,18 +40,22 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
+    "@inkjs/ui": "^2",
     "@oclif/core": "^4.2.0",
     "conf": "^13.0.1",
     "daemonize-process": "^3.0.0",
+    "ink": "^5",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
+    "react": "^18",
     "ws": "^8.18.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
     "@stamn/types": "^0.1.0",
-    "@types/ws": "^8.5.0",
     "@types/node": "^22.19.0",
+    "@types/react": "^18",
+    "@types/ws": "^8.5.0",
     "tsup": "^8.4.0",
     "typescript": "^5.7.0"
   }

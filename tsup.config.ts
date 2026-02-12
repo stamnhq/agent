@@ -14,6 +14,7 @@ export default defineConfig({
     'commands/config/get': 'src/commands/config/get.ts',
     'commands/spend': 'src/commands/spend.ts',
     'commands/update': 'src/commands/update.ts',
+    'ui/setup': 'src/ui/setup.tsx',
   },
   format: ['esm'],
   target: 'node22',
@@ -24,6 +25,9 @@ export default defineConfig({
   splitting: true,
   define: {
     AGENT_VERSION: JSON.stringify(pkg.version),
+  },
+  esbuildOptions(options) {
+    options.jsx = 'automatic';
   },
   banner: {
     js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',

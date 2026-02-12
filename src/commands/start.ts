@@ -15,14 +15,6 @@ export default class Start extends Command {
       description: 'Run as background daemon',
       default: false,
     }),
-    'agent-id': Flags.string({
-      description: 'Override agent ID',
-      env: 'STAMN_AGENT_ID',
-    }),
-    'api-key': Flags.string({
-      description: 'Override API key',
-      env: 'STAMN_API_KEY',
-    }),
     'log-level': Flags.string({
       description: 'Override log level',
       options: ['trace', 'debug', 'info', 'warn', 'error', 'fatal'],
@@ -35,16 +27,28 @@ export default class Start extends Command {
     const config = { ...configStore.getAll() };
 
     // Apply flag overrides
-    if (flags['agent-id']) config.agentId = flags['agent-id'];
-    if (flags['api-key']) config.apiKey = flags['api-key'];
     if (flags['log-level'])
       config.logLevel = flags['log-level'] as AgentConfig['logLevel'];
 
-    // Validate required fields
-    if (!config.agentId) {
-      this.error(
-        'agentId is required. Run: stamn config set agent-id <uuid>',
-      );
+    // Interactive setup when not registered
+    if (!config.apiKey || !config.agentId) {
+      if (flags.daemon || !process.stdout.isTTY) {
+        this.error(
+          'Not registered. Run `stamn start` interactively first.',
+        );
+      }
+
+      const { runSetup } = await import('../ui/setup.js');
+      try {
+        const result = await runSetup();
+        configStore.set('apiKey', result.apiKey);
+        configStore.set('agentId', result.agentId);
+        configStore.set('agentName', result.agentName);
+        config.apiKey = result.apiKey;
+        config.agentId = result.agentId;
+      } catch {
+        this.error('Setup cancelled.');
+      }
     }
 
     // Check for existing daemon

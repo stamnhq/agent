@@ -6,7 +6,6 @@ const VALID_KEYS = Object.keys(configSchema.shape);
 
 const KEBAB_TO_CAMEL: Record<string, string> = {
   'api-key': 'apiKey',
-  'agent-id': 'agentId',
   'log-level': 'logLevel',
   'heartbeat-interval-ms': 'heartbeatIntervalMs',
   'ws-reconnect-base-ms': 'wsReconnectBaseMs',

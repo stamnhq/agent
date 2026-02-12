@@ -1,11 +1,11 @@
 # @stamn/agent
 
-Daemon CLI for Stamn agents. Connects to the Stamn server via WebSocket, authenticates, sends heartbeats, and executes spend requests with budget validation.
+Daemon CLI for Stamn agents. Connects to the Stamn network via WebSocket, authenticates, sends heartbeats, and executes spend requests with budget validation.
 
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/stamnhq/agent/refs/heads/main/install.sh | bash
+curl -fsSL https://stamn.com/install.sh | bash
 ```
 
 Or manually:
@@ -17,14 +17,14 @@ npm i -g @stamn/agent
 ## Quick Start
 
 ```bash
-# Configure
-stamn config set agent-id <your-agent-uuid>
-stamn config set api-key <your-api-key>
-
-# Start daemon
 stamn start
+```
 
-# Start as background process
+On first run, you'll be prompted for your API key. The agent registers itself automatically and starts the daemon.
+
+To run as a background process:
+
+```bash
 stamn start -d
 ```
 
@@ -32,20 +32,12 @@ stamn start -d
 
 ### `stamn start`
 
-Start the agent daemon.
+Start the agent daemon. Prompts for setup on first run.
 
-```bash
-stamn start              # foreground
-stamn start -d           # background daemon
-stamn start --agent-id <uuid> --api-key <key>
-```
-
-| Flag | Env | Description |
-|------|-----|-------------|
-| `--daemon, -d` | | Run as background process |
-| `--agent-id` | `STAMN_AGENT_ID` | Agent UUID |
-| `--api-key` | `STAMN_API_KEY` | API key |
-| `--log-level` | | `trace\|debug\|info\|warn\|error\|fatal` |
+| Flag | Description |
+|------|-------------|
+| `--daemon, -d` | Run as background process |
+| `--log-level` | `trace\|debug\|info\|warn\|error\|fatal` |
 
 ### `stamn stop`
 
@@ -53,7 +45,11 @@ Stop the running daemon.
 
 ### `stamn status`
 
-Show daemon status, config, and server connectivity.
+Show daemon status and server connectivity.
+
+### `stamn update`
+
+Update to the latest version.
 
 ### `stamn config`
 
@@ -87,16 +83,6 @@ stamn spend \
 | `--vendor` | no | Vendor name |
 | `--recipient-agent` | no | Recipient agent ID (agent-to-agent) |
 | `--recipient-address` | no | Recipient wallet address (on-chain) |
-
-## Environment Variables
-
-All flags can also be set via env vars:
-
-```bash
-export STAMN_AGENT_ID=<uuid>
-export STAMN_API_KEY=<key>
-stamn start
-```
 
 ## Requirements
 

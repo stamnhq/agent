@@ -5,6 +5,7 @@ export const SERVER_URL = 'https://api.stamn.com';
 export const configSchema = z.object({
   apiKey: z.string().min(1).optional(),
   agentId: z.string().uuid().optional(),
+  agentName: z.string().optional(),
   logLevel: z
     .enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])
     .default('info'),

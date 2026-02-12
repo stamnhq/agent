@@ -35,8 +35,6 @@ export default class Spend extends Command {
     'recipient-address': Flags.string({
       description: 'Recipient wallet address (for on-chain)',
     }),
-    'agent-id': Flags.string({ env: 'STAMN_AGENT_ID' }),
-    'api-key': Flags.string({ env: 'STAMN_API_KEY' }),
   };
 
   async run(): Promise<void> {
@@ -44,11 +42,8 @@ export default class Spend extends Command {
     const configStore = new ConfigStore();
     const config = { ...configStore.getAll() };
 
-    if (flags['agent-id']) config.agentId = flags['agent-id'];
-    if (flags['api-key']) config.apiKey = flags['api-key'];
-
     if (!config.agentId) {
-      this.error('agentId is required. Run: stamn config set agent-id <uuid>');
+      this.error('Not registered. Run `stamn start` first.');
     }
 
     const logger = createLogger({ logLevel: 'info' });

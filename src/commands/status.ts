@@ -15,7 +15,7 @@ export default class Status extends Command {
     this.log('Stamn Agent Status');
     this.log('──────────────────');
     this.log(`Daemon:     ${running ? `running (PID ${pid})` : 'stopped'}`);
-    this.log(`Agent ID:   ${config.agentId ?? '(not set)'}`);
+    this.log(`Agent:      ${config.agentName ?? config.agentId ?? '(not registered)'}`);
     this.log(`Log Level:  ${config.logLevel}`);
     this.log(`Config:     ${configStore.path}`);
     this.log(`PID File:   ${dm.pidFilePath}`);
