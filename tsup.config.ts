@@ -1,0 +1,24 @@
+import { defineConfig } from 'tsup';
+
+export default defineConfig({
+  entry: {
+    index: 'src/index.ts',
+    'commands/start': 'src/commands/start.ts',
+    'commands/stop': 'src/commands/stop.ts',
+    'commands/status': 'src/commands/status.ts',
+    'commands/config/index': 'src/commands/config/index.ts',
+    'commands/config/set': 'src/commands/config/set.ts',
+    'commands/config/get': 'src/commands/config/get.ts',
+    'commands/spend': 'src/commands/spend.ts',
+  },
+  format: ['esm'],
+  target: 'node22',
+  clean: true,
+  sourcemap: true,
+  dts: true,
+  noExternal: ['@stamn/types'],
+  splitting: true,
+  banner: {
+    js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',
+  },
+});

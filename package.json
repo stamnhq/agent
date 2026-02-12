@@ -1,0 +1,58 @@
+{
+  "name": "@stamn/agent",
+  "version": "0.1.0",
+  "description": "Stamn Agent Daemon CLI",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stamnhq/agent"
+  },
+  "bin": {
+    "stamn-agent": "./bin/run.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "oclif": {
+    "bin": "stamn-agent",
+    "dirname": "stamn-agent",
+    "commands": "./dist/commands",
+    "topicSeparator": " ",
+    "topics": {
+      "config": {
+        "description": "Manage daemon configuration"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node bin/run.js",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@oclif/core": "^4.2.0",
+    "conf": "^13.0.1",
+    "daemonize-process": "^3.0.0",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@stamn/types": "^0.1.0",
+    "@types/ws": "^8.5.0",
+    "@types/node": "^22.19.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0"
+  }
+}
