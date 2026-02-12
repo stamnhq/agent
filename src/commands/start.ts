@@ -30,24 +30,24 @@ export default class Start extends Command {
     if (flags['log-level'])
       config.logLevel = flags['log-level'] as AgentConfig['logLevel'];
 
-    // Interactive setup when not registered
+    // Interactive login when not registered
     if (!config.apiKey || !config.agentId) {
       if (flags.daemon || !process.stdout.isTTY) {
         this.error(
-          'Not registered. Run `stamn start` interactively first.',
+          'Not registered. Run `stamn login` interactively first.',
         );
       }
 
-      const { runSetup } = await import('../ui/setup.js');
+      const { runDeviceLogin } = await import('../ui/device-login.js');
       try {
-        const result = await runSetup();
+        const result = await runDeviceLogin();
         configStore.set('apiKey', result.apiKey);
         configStore.set('agentId', result.agentId);
         configStore.set('agentName', result.agentName);
         config.apiKey = result.apiKey;
         config.agentId = result.agentId;
       } catch (err) {
-        this.error((err as Error).message || 'Setup cancelled.');
+        this.error((err as Error).message || 'Login cancelled.');
       }
     }
 
