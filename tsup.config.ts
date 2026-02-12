@@ -13,6 +13,7 @@ export default defineConfig({
     'commands/config/set': 'src/commands/config/set.ts',
     'commands/config/get': 'src/commands/config/get.ts',
     'commands/spend': 'src/commands/spend.ts',
+    'commands/update': 'src/commands/update.ts',
   },
   format: ['esm'],
   target: 'node22',
