@@ -35,7 +35,6 @@ export default class Spend extends Command {
     'recipient-address': Flags.string({
       description: 'Recipient wallet address (for on-chain)',
     }),
-    'server-url': Flags.string({ env: 'STAMN_SERVER_URL' }),
     'agent-id': Flags.string({ env: 'STAMN_AGENT_ID' }),
     'api-key': Flags.string({ env: 'STAMN_API_KEY' }),
   };
@@ -45,7 +44,6 @@ export default class Spend extends Command {
     const configStore = new ConfigStore();
     const config = { ...configStore.getAll() };
 
-    if (flags['server-url']) config.serverUrl = flags['server-url'];
     if (flags['agent-id']) config.agentId = flags['agent-id'];
     if (flags['api-key']) config.apiKey = flags['api-key'];
 
@@ -55,7 +53,7 @@ export default class Spend extends Command {
 
     const logger = createLogger({ logLevel: 'info' });
 
-    this.log(`Connecting to ${config.serverUrl}...`);
+    this.log('Connecting to Stamn...');
 
     const client = new WSClient({
       config,

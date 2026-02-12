@@ -7,8 +7,11 @@ import type {
   SpendApprovedPayload,
   SpendDeniedPayload,
 } from '@stamn/types';
+
+declare const AGENT_VERSION: string;
 import type { Logger } from 'pino';
 import type { AgentConfig } from '../config/config-schema.js';
+import { SERVER_URL } from '../config/config-schema.js';
 import { Heartbeat, type HeartbeatSender } from './heartbeat.js';
 import { MessageHandler } from './message-handler.js';
 
@@ -51,10 +54,7 @@ export class WSClient implements HeartbeatSender {
   connect(): void {
     if (this.isShuttingDown) return;
 
-    const config = this.options.config;
-    const wsUrl = config.serverUrl
-      .replace(/^http:/, 'ws:')
-      .replace(/^https:/, 'wss:');
+    const wsUrl = SERVER_URL.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:');
     const url = `${wsUrl}/ws/agent`;
 
     this.options.logger.info({ url }, 'Connecting to server...');
@@ -205,7 +205,9 @@ export class WSClient implements HeartbeatSender {
     const payload: StatusReportPayload = {
       agentId: this.options.config.agentId!,
       status,
-      version: '0.0.0',
+      version: AGENT_VERSION,
+      platform: `${process.platform}-${process.arch}`,
+      nodeVersion: process.versions.node,
     };
     this.send('agent:status_report', payload);
   }

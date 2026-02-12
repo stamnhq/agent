@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
+export const SERVER_URL = 'https://api.stamn.com';
+
 export const configSchema = z.object({
-  serverUrl: z.string().url().default('http://localhost:3001'),
   apiKey: z.string().min(1).optional(),
   agentId: z.string().uuid().optional(),
   logLevel: z

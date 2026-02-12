@@ -12,7 +12,6 @@ npm i -g @stamn/agent
 
 ```bash
 # Configure
-stamn config set server-url https://your-server.example.com
 stamn config set agent-id <your-agent-uuid>
 stamn config set api-key <your-api-key>
 
@@ -32,13 +31,12 @@ Start the agent daemon.
 ```bash
 stamn start              # foreground
 stamn start -d           # background daemon
-stamn start --server-url https://... --agent-id <uuid>
+stamn start --agent-id <uuid> --api-key <key>
 ```
 
 | Flag | Env | Description |
 |------|-----|-------------|
 | `--daemon, -d` | | Run as background process |
-| `--server-url` | `STAMN_SERVER_URL` | Server URL |
 | `--agent-id` | `STAMN_AGENT_ID` | Agent UUID |
 | `--api-key` | `STAMN_API_KEY` | API key |
 | `--log-level` | | `trace\|debug\|info\|warn\|error\|fatal` |
@@ -89,7 +87,6 @@ stamn spend \
 All flags can also be set via env vars:
 
 ```bash
-export STAMN_SERVER_URL=https://your-server.example.com
 export STAMN_AGENT_ID=<uuid>
 export STAMN_API_KEY=<key>
 stamn start

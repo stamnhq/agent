@@ -5,7 +5,6 @@ import { configSchema } from '../../config/config-schema.js';
 const VALID_KEYS = Object.keys(configSchema.shape);
 
 const KEBAB_TO_CAMEL: Record<string, string> = {
-  'server-url': 'serverUrl',
   'api-key': 'apiKey',
   'agent-id': 'agentId',
   'log-level': 'logLevel',

@@ -11,7 +11,6 @@ const NUMERIC_KEYS = new Set([
 ]);
 
 const KEBAB_TO_CAMEL: Record<string, string> = {
-  'server-url': 'serverUrl',
   'api-key': 'apiKey',
   'agent-id': 'agentId',
   'log-level': 'logLevel',

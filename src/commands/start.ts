@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core';
 import { ConfigStore } from '../config/config-store.js';
-import type { AgentConfig } from '../config/config-schema.js';
+import { SERVER_URL, type AgentConfig } from '../config/config-schema.js';
 import { createLogger } from '../logging/logger.js';
 import { WSClient } from '../ws/ws-client.js';
 import { SpendClient } from '../spend/spend-client.js';
@@ -14,10 +14,6 @@ export default class Start extends Command {
       char: 'd',
       description: 'Run as background daemon',
       default: false,
-    }),
-    'server-url': Flags.string({
-      description: 'Override server URL',
-      env: 'STAMN_SERVER_URL',
     }),
     'agent-id': Flags.string({
       description: 'Override agent ID',
@@ -39,7 +35,6 @@ export default class Start extends Command {
     const config = { ...configStore.getAll() };
 
     // Apply flag overrides
-    if (flags['server-url']) config.serverUrl = flags['server-url'];
     if (flags['agent-id']) config.agentId = flags['agent-id'];
     if (flags['api-key']) config.apiKey = flags['api-key'];
     if (flags['log-level'])
@@ -70,7 +65,7 @@ export default class Start extends Command {
 
     const logger = createLogger(config);
     logger.info(
-      { agentId: config.agentId, serverUrl: config.serverUrl },
+      { agentId: config.agentId, server: SERVER_URL },
       'Starting Stamn agent',
     );
 

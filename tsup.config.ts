@@ -1,4 +1,7 @@
 import { defineConfig } from 'tsup';
+import { readFileSync } from 'fs';
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 export default defineConfig({
   entry: {
@@ -18,6 +21,9 @@ export default defineConfig({
   dts: true,
   noExternal: ['@stamn/types'],
   splitting: true,
+  define: {
+    AGENT_VERSION: JSON.stringify(pkg.version),
+  },
   banner: {
     js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',
   },
