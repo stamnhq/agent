@@ -8,6 +8,8 @@ import type {
   SpendApprovedPayload,
   SpendDeniedPayload,
   TransferReceivedEventData,
+  MovePayload,
+  MoveDirection,
 } from '@stamn/types';
 
 declare const AGENT_VERSION: string;
@@ -194,6 +196,14 @@ export class WSClient implements HeartbeatSender {
 
     // NestJS @SubscribeMessage expects {event, data} format
     this.ws.send(JSON.stringify({ event: type, data: payload }));
+  }
+
+  move(direction: MoveDirection): void {
+    const payload: MovePayload = {
+      agentId: this.options.config.agentId!,
+      direction,
+    };
+    this.send('agent:move', payload);
   }
 
   disconnect(): void {
