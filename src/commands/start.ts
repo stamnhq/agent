@@ -34,7 +34,7 @@ export default class Start extends Command {
 
     // Interactive login when not registered
     if (!config.apiKey || !config.agentId) {
-      if (!flags.foreground || !process.stdout.isTTY) {
+      if (!process.stdout.isTTY) {
         this.error(
           'Not registered. Run `stamn login` interactively first.',
         );
