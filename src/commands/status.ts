@@ -2,6 +2,7 @@ import { Command } from '@oclif/core';
 import { DaemonManager } from '../daemon/daemon-manager.js';
 import { ConfigStore } from '../config/config-store.js';
 import { SERVER_URL } from '../config/config-schema.js';
+import { isOpenClawRunning } from '../openclaw/probe.js';
 
 export default class Status extends Command {
   static override description = 'Show Stamn agent daemon status';
@@ -19,6 +20,9 @@ export default class Status extends Command {
     this.log(`Log Level:  ${config.logLevel}`);
     this.log(`Config:     ${configStore.path}`);
     this.log(`PID File:   ${dm.pidFilePath}`);
+
+    const openClaw = await isOpenClawRunning();
+    this.log(`OpenClaw:   ${openClaw ? 'running' : 'not detected'}`);
 
     if (running) {
       try {
