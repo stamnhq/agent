@@ -3,9 +3,11 @@ import type {
   AuthenticatePayload,
   AuthenticatedPayload,
   AuthErrorPayload,
+  EventPayload,
   StatusReportPayload,
   SpendApprovedPayload,
   SpendDeniedPayload,
+  TransferReceivedEventData,
 } from '@stamn/types';
 
 declare const AGENT_VERSION: string;
@@ -25,6 +27,7 @@ export interface WSClientOptions {
   onCommand: (command: string, params?: Record<string, unknown>) => void;
   onDisconnect: () => void;
   onConnected: () => void;
+  onTransferReceived?: (data: TransferReceivedEventData) => void;
 }
 
 export class WSClient implements HeartbeatSender {
@@ -137,9 +140,19 @@ export class WSClient implements HeartbeatSender {
           break;
         }
 
-        case 'server:event':
-          this.options.logger.debug({ event: result.payload }, 'Server event');
+        case 'server:event': {
+          const eventPayload = result.payload as EventPayload;
+          this.options.logger.debug({ event: eventPayload }, 'Server event');
+          if (
+            eventPayload.eventType === 'transfer_received' &&
+            this.options.onTransferReceived
+          ) {
+            this.options.onTransferReceived(
+              eventPayload.data as TransferReceivedEventData,
+            );
+          }
           break;
+        }
 
         case 'server:command':
           // Already handled by MessageHandler → onCommand callback
