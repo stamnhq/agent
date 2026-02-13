@@ -12,6 +12,7 @@ export default defineConfig({
     'commands/config/index': 'src/commands/config/index.ts',
     'commands/config/set': 'src/commands/config/set.ts',
     'commands/config/get': 'src/commands/config/get.ts',
+    'commands/config/reset': 'src/commands/config/reset.ts',
     'commands/spend': 'src/commands/spend.ts',
     'commands/update': 'src/commands/update.ts',
     'commands/login': 'src/commands/login.ts',

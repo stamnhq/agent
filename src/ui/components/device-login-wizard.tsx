@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
-import { Spinner, StatusMessage } from '@inkjs/ui';
+import { TextInput, Spinner, StatusMessage } from '@inkjs/ui';
 
-type Step = 'requesting' | 'waiting' | 'registering' | 'done';
+type Step = 'requesting' | 'waiting' | 'naming' | 'registering' | 'done';
 
 interface DeviceFlowData {
   deviceCode: string;
@@ -27,6 +27,8 @@ const POLL_INTERVAL_MS = 5_000;
 export function DeviceLoginWizard({ onComplete, onError }: Props) {
   const [step, setStep] = useState<Step>('requesting');
   const [flow, setFlow] = useState<DeviceFlowData | null>(null);
+  const [pendingApiKey, setPendingApiKey] = useState<string | null>(null);
+  const [agentName, setAgentName] = useState('');
 
   // Step 1: Initiate device flow
   useEffect(() => {
@@ -96,8 +98,8 @@ export function DeviceLoginWizard({ onComplete, onError }: Props) {
         if (cancelled) return;
 
         if (json.data.status === 'approved' && json.data.apiKey) {
-          setStep('registering');
-          await registerAgent(json.data.apiKey);
+          setPendingApiKey(json.data.apiKey);
+          setStep('naming');
         } else if (json.data.status === 'expired') {
           onError('Login code expired. Run `stamn login` again.');
         }
@@ -116,18 +118,19 @@ export function DeviceLoginWizard({ onComplete, onError }: Props) {
     };
   }, [step, flow]);
 
-  const registerAgent = async (apiKey: string) => {
+  const registerAgent = async (apiKey: string, name: string) => {
     try {
       const { SERVER_URL } = await import(
         '../../config/config-schema.js'
       );
-      const res = await fetch(`${SERVER_URL}/v1/agents/register`, {
+      const res = await fetch(`${SERVER_URL}/v1/agents`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
+          name: name || undefined,
           platform: `${process.platform}-${process.arch}`,
         }),
       });
@@ -188,8 +191,28 @@ export function DeviceLoginWizard({ onComplete, onError }: Props) {
         </Box>
       )}
 
+      {step === 'naming' && (
+        <Box flexDirection="column">
+          <StatusMessage variant="success">Approved!</StatusMessage>
+          <Box marginTop={1}>
+            <Text>Agent name: </Text>
+            <TextInput
+              placeholder="my-agent"
+              onSubmit={(value) => {
+                setAgentName(value);
+                setStep('registering');
+                registerAgent(pendingApiKey!, value);
+              }}
+            />
+          </Box>
+          <Box marginTop={1}>
+            <Text dimColor>Press Enter to confirm (leave empty for auto-generated name)</Text>
+          </Box>
+        </Box>
+      )}
+
       {step === 'registering' && (
-        <Spinner label="Approved! Registering agent..." />
+        <Spinner label="Registering agent..." />
       )}
 
       {step === 'done' && (
