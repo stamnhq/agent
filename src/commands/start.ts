@@ -12,9 +12,9 @@ export default class Start extends Command {
   static override description = 'Start the Stamn agent daemon';
 
   static override flags = {
-    daemon: Flags.boolean({
-      char: 'd',
-      description: 'Run as background daemon',
+    foreground: Flags.boolean({
+      char: 'f',
+      description: 'Run in foreground (default: daemonize)',
       default: false,
     }),
     'log-level': Flags.string({
@@ -34,7 +34,7 @@ export default class Start extends Command {
 
     // Interactive login when not registered
     if (!config.apiKey || !config.agentId) {
-      if (flags.daemon || !process.stdout.isTTY) {
+      if (!flags.foreground || !process.stdout.isTTY) {
         this.error(
           'Not registered. Run `stamn login` interactively first.',
         );
@@ -60,8 +60,8 @@ export default class Start extends Command {
       this.error(`Daemon already running (PID ${pid})`);
     }
 
-    // Daemonize if requested
-    if (flags.daemon) {
+    // Daemonize unless --foreground is passed
+    if (!flags.foreground) {
       const { daemonizeProcess } = await import('../daemon/process.js');
       await daemonizeProcess();
     }
