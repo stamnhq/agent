@@ -1,6 +1,6 @@
 {
   "name": "@stamn/agent",
-  "version": "0.9.5",
+  "version": "0.10.0",
   "description": "Stamn Agent Daemon CLI",
   "type": "module",
   "license": "MIT",
@@ -52,7 +52,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@stamn/types": "^0.1.0",
+    "@stamn/types": "workspace:@repo/types@*",
     "@types/node": "^22.19.0",
     "@types/react": "^18",
     "@types/ws": "^8.5.0",

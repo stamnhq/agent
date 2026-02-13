@@ -7,6 +7,7 @@ import { SpendClient } from '../spend/spend-client.js';
 import { DaemonManager } from '../daemon/daemon-manager.js';
 import { CliOpenClawClient } from '../openclaw/cli-openclaw-client.js';
 import { isOpenClawRunning } from '../openclaw/probe.js';
+import type { MoveDirection } from '@stamn/types';
 
 export default class Start extends Command {
   static override description = 'Start the Stamn agent daemon';
@@ -129,9 +130,56 @@ export default class Start extends Command {
     // Expose on process for external plugin access
     (globalThis as Record<string, unknown>).__stamnSpendClient = spendClient;
 
+    // World movement loop
+    const DIRECTIONS: MoveDirection[] = ['up', 'down', 'left', 'right'];
+    let worldPosition = { x: 0, y: 0 };
+    const GRID_SIZE = 20;
+    const MOVE_INTERVAL_MS = 5_000;
+    let worldTimer: ReturnType<typeof setInterval> | null = null;
+
+    const startWorldLoop = () => {
+      worldTimer = setInterval(async () => {
+        if (!client.isAuthenticated) return;
+
+        let direction: MoveDirection;
+
+        if (openClaw) {
+          const ocDir = await openClaw.queryDirection(
+            worldPosition.x,
+            worldPosition.y,
+            GRID_SIZE,
+          );
+          direction = ocDir ?? DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+        } else {
+          direction = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+        }
+
+        client.move(direction);
+
+        // Track position locally
+        switch (direction) {
+          case 'up': worldPosition.y = Math.max(0, worldPosition.y - 1); break;
+          case 'down': worldPosition.y = Math.min(GRID_SIZE - 1, worldPosition.y + 1); break;
+          case 'left': worldPosition.x = Math.max(0, worldPosition.x - 1); break;
+          case 'right': worldPosition.x = Math.min(GRID_SIZE - 1, worldPosition.x + 1); break;
+        }
+
+        logger.debug({ direction, ...worldPosition }, 'World move');
+      }, MOVE_INTERVAL_MS);
+    };
+
+    // Start world loop when connected
+    const originalOnConnected = client['options'].onConnected;
+    client['options'].onConnected = () => {
+      originalOnConnected();
+      startWorldLoop();
+      logger.info('World movement loop started');
+    };
+
     // Graceful shutdown
     const shutdown = () => {
       logger.info('Shutting down...');
+      if (worldTimer) clearInterval(worldTimer);
       client.disconnect();
       dm.removePid();
       process.exit(0);
