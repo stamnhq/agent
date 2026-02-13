@@ -5,6 +5,7 @@ import { createLogger } from '../logging/logger.js';
 import { WSClient } from '../ws/ws-client.js';
 import { SpendClient } from '../spend/spend-client.js';
 import { DaemonManager } from '../daemon/daemon-manager.js';
+import { CliOpenClawClient } from '../openclaw/cli-openclaw-client.js';
 
 export default class Start extends Command {
   static override description = 'Start the Stamn agent daemon';
@@ -73,6 +74,9 @@ export default class Start extends Command {
       'Starting Stamn agent',
     );
 
+    // Initialize OpenClaw client for event injection
+    const openClaw = new CliOpenClawClient(logger);
+
     // Create WebSocket client
     const client = new WSClient({
       config,
@@ -88,6 +92,25 @@ export default class Start extends Command {
       },
       onConnected: () => {
         logger.info('Agent is online and ready — spend capability active');
+      },
+      onTransferReceived: (data) => {
+        const amount = (data.amountCents / 1_000_000).toFixed(2);
+        const balance = (data.yourBalanceCents / 1_000_000).toFixed(2);
+        const msg =
+          `ECONOMIC EVENT: You received $${amount} USDC from ${data.fromAgentName}. ` +
+          `Description: "${data.description}". ` +
+          `Your balance is now $${balance} USDC. ` +
+          `Decide what action to take based on your strategy.`;
+        logger.info(
+          { from: data.fromAgentName, amountCents: data.amountCents },
+          'Transfer received, injecting into OpenClaw',
+        );
+        openClaw.injectEvent(msg).catch((err) =>
+          logger.error(
+            { err: (err as Error).message },
+            'Failed to inject event into OpenClaw',
+          ),
+        );
       },
     });
 
