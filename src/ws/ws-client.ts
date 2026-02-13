@@ -12,7 +12,7 @@ import type {
 
 declare const AGENT_VERSION: string;
 import type { Logger } from 'pino';
-import type { AgentConfig } from '../config/config-schema.js';
+import { SERVER_URL, type AgentConfig } from '../config/config-schema.js';
 import { Heartbeat, type HeartbeatSender } from './heartbeat.js';
 import { MessageHandler } from './message-handler.js';
 
@@ -57,7 +57,7 @@ export class WSClient implements HeartbeatSender {
     if (this.isShuttingDown) return;
 
     const config = this.options.config;
-    const wsUrl = config.serverUrl
+    const wsUrl = SERVER_URL
       .replace(/^http:/, 'ws:')
       .replace(/^https:/, 'wss:');
     const url = `${wsUrl}/ws/agent`;
