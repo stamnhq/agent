@@ -10,6 +10,11 @@ import type {
   TransferReceivedEventData,
   MovePayload,
   MoveDirection,
+  LandClaimPayload,
+  LandOfferPayload,
+  LandClaimedPayload,
+  LandClaimDeniedPayload,
+  LandTradeCompletePayload,
 } from '@stamn/types';
 
 declare const AGENT_VERSION: string;
@@ -30,6 +35,9 @@ export interface WSClientOptions {
   onDisconnect: () => void;
   onConnected: () => void;
   onTransferReceived?: (data: TransferReceivedEventData) => void;
+  onLandClaimed?: (payload: LandClaimedPayload) => void;
+  onLandClaimDenied?: (payload: LandClaimDeniedPayload) => void;
+  onLandTradeComplete?: (payload: LandTradeCompletePayload) => void;
 }
 
 export class WSClient implements HeartbeatSender {
@@ -156,6 +164,28 @@ export class WSClient implements HeartbeatSender {
           break;
         }
 
+        case 'server:land_claimed':
+          if (this.options.onLandClaimed) {
+            this.options.onLandClaimed(result.payload as LandClaimedPayload);
+          }
+          break;
+
+        case 'server:land_claim_denied':
+          if (this.options.onLandClaimDenied) {
+            this.options.onLandClaimDenied(
+              result.payload as LandClaimDeniedPayload,
+            );
+          }
+          break;
+
+        case 'server:land_trade_complete':
+          if (this.options.onLandTradeComplete) {
+            this.options.onLandTradeComplete(
+              result.payload as LandTradeCompletePayload,
+            );
+          }
+          break;
+
         case 'server:command':
           // Already handled by MessageHandler → onCommand callback
           break;
@@ -204,6 +234,29 @@ export class WSClient implements HeartbeatSender {
       direction,
     };
     this.send('agent:move', payload);
+  }
+
+  claimLand(): void {
+    const payload: LandClaimPayload = {
+      agentId: this.options.config.agentId!,
+    };
+    this.send('agent:land_claim', payload);
+  }
+
+  offerLand(
+    x: number,
+    y: number,
+    toAgentId: string,
+    priceCents: number,
+  ): void {
+    const payload: LandOfferPayload = {
+      agentId: this.options.config.agentId!,
+      x,
+      y,
+      toAgentId,
+      priceCents,
+    };
+    this.send('agent:land_offer', payload);
   }
 
   disconnect(): void {

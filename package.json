@@ -1,6 +1,6 @@
 {
   "name": "@stamn/agent",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Stamn Agent Daemon CLI",
   "type": "module",
   "license": "MIT",
