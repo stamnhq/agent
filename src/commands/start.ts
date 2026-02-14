@@ -1,4 +1,5 @@
 import { Command, Flags } from '@oclif/core';
+import type { MoveDirection } from '@stamn/types';
 import { ConfigStore } from '../config/config-store.js';
 import { SERVER_URL, type AgentConfig } from '../config/config-schema.js';
 import { createLogger } from '../logging/logger.js';
@@ -7,6 +8,8 @@ import { SpendClient } from '../spend/spend-client.js';
 import { DaemonManager } from '../daemon/daemon-manager.js';
 import { CliOpenClawClient } from '../openclaw/cli-openclaw-client.js';
 import { isOpenClawRunning } from '../openclaw/probe.js';
+
+const DIRECTIONS: MoveDirection[] = ['up', 'down', 'left', 'right'];
 
 export default class Start extends Command {
   static override description = 'Start the Stamn agent daemon';
@@ -84,6 +87,13 @@ export default class Start extends Command {
       logger.info('OpenClaw gateway not found — running in wallet-only mode');
     }
 
+    // World loop state
+    let worldTimer: ReturnType<typeof setInterval> | null = null;
+    let worldPosition = { x: 0, y: 0 };
+    let ownedParcels = 0;
+    const GRID_SIZE = parseInt(process.env.WORLD_GRID_SIZE ?? '100', 10);
+    const MOVE_INTERVAL_MS = 5_000;
+
     // Create WebSocket client
     const client = new WSClient({
       config,
@@ -96,6 +106,10 @@ export default class Start extends Command {
       },
       onDisconnect: () => {
         logger.warn('Disconnected from server');
+        if (worldTimer) {
+          clearInterval(worldTimer);
+          worldTimer = null;
+        }
       },
       onConnected: () => {
         logger.info('Agent is online and ready — spend capability active');
@@ -121,6 +135,25 @@ export default class Start extends Command {
             );
           }
         : undefined,
+      onLandClaimed: (payload) => {
+        ownedParcels++;
+        logger.info(
+          { x: payload.x, y: payload.y, total: ownedParcels },
+          'Land claimed successfully',
+        );
+      },
+      onLandClaimDenied: (payload) => {
+        logger.debug(
+          { reason: payload.reason, code: payload.code },
+          'Land claim denied',
+        );
+      },
+      onLandTradeComplete: (payload) => {
+        logger.info(
+          { x: payload.x, y: payload.y, buyer: payload.toAgentId, price: payload.priceCents },
+          'Land trade completed',
+        );
+      },
     });
 
     // Create spend client — available for plugin/task integration
@@ -129,9 +162,62 @@ export default class Start extends Command {
     // Expose on process for external plugin access
     (globalThis as Record<string, unknown>).__stamnSpendClient = spendClient;
 
+    // World movement + land claiming loop
+    const startWorldLoop = () => {
+      worldTimer = setInterval(async () => {
+        if (!client.isAuthenticated) return;
+
+        try {
+          let direction: MoveDirection;
+
+          if (openClaw) {
+            const ocDir = await openClaw.queryDirection(
+              worldPosition.x,
+              worldPosition.y,
+              GRID_SIZE,
+            );
+            direction = ocDir ?? DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+          } else {
+            direction = DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
+          }
+
+          client.move(direction);
+
+          // Track position locally
+          switch (direction) {
+            case 'up': worldPosition.y = Math.max(0, worldPosition.y - 1); break;
+            case 'down': worldPosition.y = Math.min(GRID_SIZE - 1, worldPosition.y + 1); break;
+            case 'left': worldPosition.x = Math.max(0, worldPosition.x - 1); break;
+            case 'right': worldPosition.x = Math.min(GRID_SIZE - 1, worldPosition.x + 1); break;
+          }
+
+          logger.debug({ direction, ...worldPosition }, 'World move');
+
+          // Randomly try to claim land (20% chance each tick)
+          if (Math.random() < 0.2) {
+            client.claimLand();
+          }
+        } catch (err) {
+          logger.error(
+            { err: (err as Error).message },
+            'World loop error',
+          );
+        }
+      }, MOVE_INTERVAL_MS);
+    };
+
+    // Start world loop when connected
+    const originalOnConnected = client['options'].onConnected;
+    client['options'].onConnected = () => {
+      originalOnConnected();
+      startWorldLoop();
+      logger.info('World movement loop started');
+    };
+
     // Graceful shutdown
     const shutdown = () => {
       logger.info('Shutting down...');
+      if (worldTimer) clearInterval(worldTimer);
       client.disconnect();
       dm.removePid();
       process.exit(0);
