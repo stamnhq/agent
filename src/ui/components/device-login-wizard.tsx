@@ -4,6 +4,8 @@ import { TextInput, Spinner, StatusMessage } from '@inkjs/ui';
 
 type Step = 'requesting' | 'waiting' | 'naming' | 'registering' | 'done';
 
+const SAFE_NAME = /^[a-zA-Z0-9 _\-\.]+$/;
+
 interface DeviceFlowData {
   deviceCode: string;
   userCode: string;
@@ -29,6 +31,7 @@ export function DeviceLoginWizard({ onComplete, onError }: Props) {
   const [flow, setFlow] = useState<DeviceFlowData | null>(null);
   const [pendingApiKey, setPendingApiKey] = useState<string | null>(null);
   const [agentName, setAgentName] = useState('');
+  const [nameError, setNameError] = useState('');
 
   // Step 1: Initiate device flow
   useEffect(() => {
@@ -137,7 +140,18 @@ export function DeviceLoginWizard({ onComplete, onError }: Props) {
 
       if (!res.ok) {
         const body = await res.text();
-        throw new Error(body || `HTTP ${res.status}`);
+        let message = `HTTP ${res.status}`;
+        try {
+          const parsed = JSON.parse(body);
+          if (Array.isArray(parsed.message)) {
+            message = parsed.message.join('. ');
+          } else if (typeof parsed.message === 'string') {
+            message = parsed.message;
+          }
+        } catch {
+          if (body) message = body;
+        }
+        throw new Error(message);
       }
 
       const json = (await res.json()) as {
@@ -199,15 +213,30 @@ export function DeviceLoginWizard({ onComplete, onError }: Props) {
             <TextInput
               placeholder="my-agent"
               onSubmit={(value) => {
+                if (value && !SAFE_NAME.test(value)) {
+                  setNameError('Only letters, numbers, spaces, hyphens, underscores, and dots are allowed.');
+                  return;
+                }
+                if (value && value.length > 100) {
+                  setNameError('Name must be 100 characters or less.');
+                  return;
+                }
+                setNameError('');
                 setAgentName(value);
                 setStep('registering');
                 registerAgent(pendingApiKey!, value);
               }}
             />
           </Box>
-          <Box marginTop={1}>
-            <Text dimColor>Press Enter to confirm (leave empty for auto-generated name)</Text>
-          </Box>
+          {nameError ? (
+            <Box marginTop={1}>
+              <StatusMessage variant="error">{nameError}</StatusMessage>
+            </Box>
+          ) : (
+            <Box marginTop={1}>
+              <Text dimColor>Press Enter to confirm (leave empty for auto-generated name)</Text>
+            </Box>
+          )}
         </Box>
       )}
 
